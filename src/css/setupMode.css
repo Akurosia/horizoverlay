@@ -25,7 +25,9 @@
 .instructions {
   margin-top: 6px;
 }
-
+.combatants-reversed {
+  flex-direction: row-reverse;
+}
 .combatants {
   display: flex;
   text-align: center;

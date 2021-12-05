@@ -24,7 +24,7 @@ export const defaultConfig = {
   locale: 'enUS',
   configWindow: {
     width: 1300,
-    height: 239
+    height: 258
   },
   colorPicker: {
     width: 250,

@@ -95,7 +95,11 @@ export default class CombatantHorizontal extends Component {
     colorDPS = colorDPS.substr(4, colorDPS.length-5);
 
     let maxhit
-    if (data.maxhit) maxhit = data.maxhit.replace('-', ': ')
+    if (data.maxhit) {
+      let originalMaxHit = data.maxhit
+      let pos = originalMaxHit.lastIndexOf('-')
+      maxhit = `${originalMaxHit.substring(0, pos)}: ${originalMaxHit.substring(pos + 1)}`
+    }
     return (
       <div
         className={`row job-style-variables ${data.Job}${jobStyleClass}${

@@ -33,12 +33,16 @@ function SetupModeRaw(props) {
       style={{ zoom: props.config.zoom }}
     >
       <div className={`wrapper ${isVisible}`}>
-        <div className="combatants">
+        <div className={`combatants ${props.config.reverseOrder ? 'combatants-reversed' : ''}`}>
           {mockData.map((mock, index) => {
             if (index >= maxCombatants) return false
             if (!mock.isSelf && props.config.enableSoloMode) return false
             let maxhit
-            if (mock.maxhit) maxhit = mock.maxhit.replace('-', ': ')
+            if (mock.maxhit) {
+              let originalMaxHit = mock.maxhit
+              let pos = originalMaxHit.lastIndexOf('-')
+              maxhit = `${originalMaxHit.substring(0, pos)}: ${originalMaxHit.substring(pos + 1)}`
+            }
             return (
               mock.name.toLowerCase() !== 'limit break' && (
                 <div
