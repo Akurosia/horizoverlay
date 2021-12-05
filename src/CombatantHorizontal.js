@@ -36,6 +36,8 @@ export default class CombatantHorizontal extends Component {
     // don't need to render this component if this is a limit break
     if (!data.Job && name === 'limit break') return null
 
+    if (!isSelf && config.enableSoloMode) return null
+
     // Color theme byRole
     if (config.color === 'byRole') {
       for (const role in jobRoles) {
@@ -71,7 +73,12 @@ export default class CombatantHorizontal extends Component {
       } else {
         jobIcon += data.Job.toLowerCase()
       }
-      jobIcon = images(`${jobIcon}.png`)
+      try {
+        jobIcon = images(`${jobIcon}.png`)
+      } catch (e) {
+        console.error(e)
+        jobIcon = images('./empty.png')
+      }
     }
 
     // Character name (self, instead of 'YOU')
@@ -79,14 +86,24 @@ export default class CombatantHorizontal extends Component {
 
     const isHealing = data.ENCHPS > data.ENCDPS
 
+    // All we need from the saved colors is the numbers, not the rgb() portion
+    let colorTank = this.props.config['colorTank'];
+    colorTank = colorTank.substr(4, colorTank.length-5);
+    let colorHealer = this.props.config['colorHealer'];
+    colorHealer = colorHealer.substr(4, colorHealer.length-5);
+    let colorDPS = this.props.config['colorDPS'];
+    colorDPS = colorDPS.substr(4, colorDPS.length-5);
+
     let maxhit
     if (data.maxhit) maxhit = data.maxhit.replace('-', ': ')
     return (
       <div
-        className={`row ${data.Job}${jobStyleClass}${
+        className={`row job-style-variables ${data.Job}${jobStyleClass}${
           isSelf && config.showSelf ? ' self' : ''
         }`}
-        style={{ order }}
+
+        // Setting the CSS style variables here will overwrite whatever is in the .css file
+        style={{ order: order, '--tank': colorTank, '--dps': colorDPS, '--healer': colorHealer }}
       >
         <div className="name">
           {config.showRank ? (
@@ -94,7 +111,7 @@ export default class CombatantHorizontal extends Component {
           ) : (
             ''
           )}
-          <span className="character-name">{characterName}</span>
+          <span className={`character-name ${ !isSelf && config.enableStreamerMode ? 'streamer-mode' : '' }`}>{characterName}</span>
         </div>
         <div
           className={`data-items${config.showHighlight ? ' highlight' : ''}${
@@ -102,9 +119,8 @@ export default class CombatantHorizontal extends Component {
           }`}
         >
           {jobIcon && <img src={jobIcon} className="job" alt={jobName} />}
-          <DataText type="pct" show={config.showFFLogsPCT} {...data} />
           <DataText type="hps" show={config.showHps} {...data} />
-          <DataText type="job" show={!config.showHps && !config.showFFLogsPCT} {...data} />
+          <DataText type="job" show={!config.showHps} {...data} />
           <DataText type="dps" {...data} />
         </div>
         <DamageBar width={damageWidth} show={config.showDamagePercent} />
@@ -145,11 +161,6 @@ function DataText({ type, show = true, ...data } = {}) {
       text = data.ENCHPS
       label = ' HPS'
       relevant = data.ENCHPS > data.ENCDPS
-      break
-    case 'pct':
-      text = data.Percentile
-      label = ' pct'
-      relevant = data.Percentile > data.ENCHPS
       break
     case 'dps':
       text = data.ENCDPS

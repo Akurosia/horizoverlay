@@ -6,10 +6,11 @@ import './css/config.css'
 
 class ConfigRaw extends Component {
   state = { ...this.props }
-  handleConfig = e => {
+  selectedRole = ''
+  handleConfig = (e) => {
     const target = e.target
     if (target.type === 'text') e.preventDefault()
-    const config = { ...this.state.config }
+    const config = JSON.parse(localStorage.getItem('horizoverlay'));
     let key = target.name,
       value = target.value
 
@@ -25,8 +26,10 @@ class ConfigRaw extends Component {
 
     // And then save it to localStorage!
     localStorage.setItem('horizoverlay', JSON.stringify(config))
+
+    console.log(config);
   }
-  resetConfig = e => {
+  resetConfig = (e) => {
     e.preventDefault()
 
     // Clear any setup
@@ -38,6 +41,10 @@ class ConfigRaw extends Component {
     // well that's horrible
     window.location.reload()
   }
+  spawnColorPicker = (roleName, e) => {
+    e.preventDefault()
+    this.props.openColorPicker(roleName)
+  }
   // *** IMPORTANT ***
   // Gotta bind 'onChange' for checkboxes since false values don't bubble to 'onChange'!
   render() {
@@ -45,7 +52,7 @@ class ConfigRaw extends Component {
     const loc = locale[config.locale].config
     return (
       <div className="config" style={{ zoom: config.zoom }}>
-        <form onSubmit={e => this.resetConfig(e)}>
+        <form onSubmit={(e) => this.resetConfig(e)}>
           <label
             htmlFor="showSetup"
             className={`setup-btn${config.showSetup ? '' : ' disabled'}`}
@@ -111,6 +118,16 @@ class ConfigRaw extends Component {
                 {/* Black & White */}
                 {loc.themeOption2}
               </label>
+              <br />
+              {config.color === 'byRole' &&
+                <div>
+                  <button className="color-btn" onClick={(e) => this.spawnColorPicker('Tank', e)}>Set Tank Color</button>
+                  <br />
+                  <button className="color-btn" onClick={(e) => this.spawnColorPicker('DPS', e)}>Set DPS Color</button>
+                  <br />
+                  <button className="color-btn" onClick={(e) => this.spawnColorPicker('Healer', e)}>Set Healer Color</button>
+                </div>
+              }
             </div>
           </fieldset>
           <fieldset className="fieldsToShow">
@@ -220,6 +237,17 @@ class ConfigRaw extends Component {
             </label>
             <input
               type="checkbox"
+              name="showJobless"
+              id="showJobless"
+              defaultChecked={config.showJobless}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showJobless">
+              {/* Self */}
+              {loc.toggleOption12}
+            </label>
+            <input
+              type="checkbox"
               name="showDiscord"
               id="showDiscord"
               defaultChecked={config.showDiscord}
@@ -240,6 +268,28 @@ class ConfigRaw extends Component {
               {/* Language */}
               {loc.toggleOption10}
             </label>
+            <input
+              type="checkbox"
+              name="enableStreamerMode"
+              id="enableStreamerMode"
+              defaultChecked={config.enableStreamerMode}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="enableStreamerMode">
+              {/* Enbale Streamer Mode (blur names) */}
+              {loc.toggleOption13}
+            </label>
+            <input
+              type="checkbox"
+              name="enableSoloMode"
+              id="enableSoloMode"
+              defaultChecked={config.enableSoloMode}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="enableSoloMode">
+              {/* Enable Solo Mode (Only show own DPS) */}
+              {loc.toggleOption14}
+            </label>
             <div className="combatants">
               <label htmlFor="maxCombatants">
                 {/* # Combatants */}
@@ -253,17 +303,6 @@ class ConfigRaw extends Component {
                 onChange={this.handleConfig}
               />
             </div>
-            <label htmlFor="showFFogsPCT">
-              {/* FFLOGs PCT # */}
-              {loc.toggleOption12}
-            </label>
-            <input
-              type="checkbox"
-              name="showFFLogsPCT"
-              id="showFFLogsPCT"
-              defaultChecked={config.showFFLogsPCT}
-              onChange={this.handleConfig}
-            />
           </fieldset>
           <fieldset className="fieldsZoom">
             <legend>
@@ -433,11 +472,15 @@ class ConfigRaw extends Component {
               {/* Traditional Chinese */}
               {loc.localeOption4}
             </option>
+            <option value={loc.localeOption5Value}>
+              {/* French */}
+              {loc.localeOption5}
+            </option>
           </select>
           <span
             className="help"
             dangerouslySetInnerHTML={{
-              __html: loc.help
+              __html: loc.help,
             }}
           >
             {/* Everything saves automatically.<br />
