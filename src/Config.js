@@ -259,6 +259,7 @@ class ConfigRaw extends Component {
                   onChange={this.handleConfig}
                 />
               </div>
+            </div>
           </fieldset>
           <fieldset className="fieldsZoom">
             <legend>
