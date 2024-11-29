@@ -24,23 +24,18 @@ export const defaultConfig = {
   locale: 'enUS',
   configWindow: {
     width: 1300,
-    height: 258
+    height: 239
   },
-  colorPicker: {
-    width: 250,
-    height: 300
-  },
-  colorHealer: 'rgb(139, 195, 74)',
-  colorTank: 'rgb(33, 150, 243)',
-  colorDPS: 'rgb(244, 67, 54)'
+  colorHealer: 'rgba(139, 195, 74, 0.3)',
+  colorTank: 'rgba(33, 150, 243, 0.3)',
+  colorDps: 'rgba(244, 67, 54, 0.3)'
 }
 
 // Declaring as a function makes it hoisted and don't mess with constructor from React.Component
 export function withHelper({
   WrappedComponent,
   willMock = false,
-  isConfig = false,
-  isColorPicker = false
+  isConfig = false
 }) {
   return class withConfig extends Component {
     static defaultProps = {
@@ -60,10 +55,7 @@ export function withHelper({
         showDamagePercent: bool.isRequired,
 		showJobless: bool.isRequired,
         zoom: string.isRequired,
-        configWindow: object.isRequired,
-        colorHealer: string.isRequired,
-        colorTank: string.isRequired,
-        colorDPS: string.isRequired
+        configWindow: object.isRequired
       })
     }
     state = { ...this.props }
@@ -132,27 +124,6 @@ export function withHelper({
         this.configWindow = null
       }
     }
-    openColorPicker = (roleName) => {
-      this.setState({ isColorPickerOpen: true })
-      const windowFeatures = `menubar=no,location=no,resizable=no,scrollbars=yes,status=no,width=${
-        this.props.config.colorPicker.width
-      },height=${this.props.config.colorPicker.height}`
-      this.colorPickerWindow = window.open(
-        './#/colorpicker/' + roleName,
-        'Color Picker',
-        windowFeatures
-      )
-      this.colorPickerWindow.focus()
-
-      // State wasn't getting set in the color picker window, so it gets set here instead
-      this.colorPickerWindow.onunload = () => {
-        this.setState({ isColorPickerOpen: false })
-        this.colorPickerWindow = null
-        const config = { ...JSON.parse(localStorage.getItem('horizoverlay')) }
-
-        this.setState({ config })
-      }
-    }
     render = () => {
       const { Combatant, Encounter, isActive } = this.props
       return (
@@ -162,7 +133,6 @@ export function withHelper({
           Encounter={Encounter}
           isActive={isActive}
           openConfig={this.openConfig}
-          openColorPicker={this.openColorPicker}
           handleReset={this.updateState}
         />
       )
@@ -184,11 +154,13 @@ export const jobRoles = {
     'arc',
     'blm',
     'brd',
+    'dnc',
     'drg',
     'lnc',
     'mch',
     'mnk',
     'nin',
+    'pct',
     'pgl',
     'pug',
     'rdm',
@@ -197,7 +169,7 @@ export const jobRoles = {
     'sam',
     'smn',
     'thm',
-    'dnc',
+    'vpr',
     'carbuncle',
     'garuda',
     'ifrit',

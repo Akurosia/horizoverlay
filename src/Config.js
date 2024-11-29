@@ -6,11 +6,10 @@ import './css/config.css'
 
 class ConfigRaw extends Component {
   state = { ...this.props }
-  selectedRole = ''
   handleConfig = (e) => {
     const target = e.target
     if (target.type === 'text') e.preventDefault()
-    const config = JSON.parse(localStorage.getItem('horizoverlay'));
+    const config = { ...this.state.config }
     let key = target.name,
       value = target.value
 
@@ -26,8 +25,6 @@ class ConfigRaw extends Component {
 
     // And then save it to localStorage!
     localStorage.setItem('horizoverlay', JSON.stringify(config))
-
-    console.log(config);
   }
   resetConfig = (e) => {
     e.preventDefault()
@@ -41,115 +38,11 @@ class ConfigRaw extends Component {
     // well that's horrible
     window.location.reload()
   }
-  spawnColorPicker = (roleName, e) => {
-    e.preventDefault()
-    this.props.openColorPicker(roleName)
-  }
   // *** IMPORTANT ***
   // Gotta bind 'onChange' for checkboxes since false values don't bubble to 'onChange'!
   render() {
     let { config } = this.state
     const loc = locale[config.locale].config
-
-    const checkboxFieldsToChange = [
-      {
-        name: 'showRank',
-        id: 'showRank',
-        defaultChecked: config.showRank,
-        label: loc.toggleOption1
-      },
-      {
-        name: 'showJobIcon',
-        id: 'showJobIcon',
-        defaultChecked: config.showJobIcon,
-        label: loc.toggleOption2
-      },
-      {
-        name: 'showHps',
-        id: 'showHps',
-        defaultChecked: config.showHps,
-        label: loc.toggleOption3
-      },
-      {
-        name: 'showHighlight',
-        id: 'showHighlight',
-        defaultChecked: config.showHighlight,
-        label: loc.toggleOption4
-      },
-      {
-        name: 'showSelf',
-        id: 'showSelf',
-        defaultChecked: config.showSelf,
-        label: loc.toggleOption5
-      },
-      {
-        name: 'showMaxhit',
-        id: 'showMaxhit',
-        defaultChecked: config.showMaxhit,
-        label: loc.toggleOption11
-      },
-      {
-        name: 'showDuration',
-        id: 'showDuration',
-        defaultChecked: config.showDuration,
-        label: loc.toggleOption6
-      },
-      {
-        name: 'showTotalDps',
-        id: 'showTotalDps',
-        defaultChecked: config.showTotalDps,
-        label: loc.toggleOption7
-      },
-      {
-        name: 'showDamagePercent',
-        id: 'showDamagePercent',
-        defaultChecked: config.showDamagePercent,
-        label: loc.toggleOption8
-      },
-      {
-        name: 'showJobless',
-        id: 'showJobless',
-        defaultChecked: config.showJobless,
-        label: loc.toggleOption12
-      },
-      {
-        name: 'showDiscord',
-        id: 'showDiscord',
-        defaultChecked: config.showDiscord,
-        label: loc.toggleOption9
-      },
-      {
-        name: 'showLocale',
-        id: 'showLocale',
-        defaultChecked: config.showLocale,
-        label: loc.toggleOption10
-      },
-      {
-        name: 'reverseOrder',
-        id: 'reverseOrder',
-        defaultChecked: config.reverseOrder,
-        label: loc.toggleOption15
-      },
-      {
-        name: 'enableStreamerMode',
-        id: 'enableStreamerMode',
-        defaultChecked: config.enableStreamerMode,
-        label: loc.toggleOption13
-      },
-      {
-        name: 'showJobless',
-        id: 'showJobless',
-        defaultChecked: config.showJobless,
-        label: loc.toggleOption12
-      },
-      {
-        name: 'enableSoloMode',
-        id: 'enableSoloMode',
-        defaultChecked: config.enableSoloMode,
-        label: loc.toggleOption14
-      }
-    ]
-
     return (
       <div className="config" style={{ zoom: config.zoom }}>
         <form onSubmit={(e) => this.resetConfig(e)}>
@@ -218,47 +111,180 @@ class ConfigRaw extends Component {
                 {/* Black & White */}
                 {loc.themeOption2}
               </label>
-              <br />
-              {config.color === 'byRole' &&
-                <div>
-                  <button className="color-btn" onClick={(e) => this.spawnColorPicker('Tank', e)}>Set Tank Color</button>
-                  <br />
-                  <button className="color-btn" onClick={(e) => this.spawnColorPicker('DPS', e)}>Set DPS Color</button>
-                  <br />
-                  <button className="color-btn" onClick={(e) => this.spawnColorPicker('Healer', e)}>Set Healer Color</button>
-                </div>
-              }
             </div>
           </fieldset>
-          <fieldset>
-            <div className="checkboxFieldsToChange">
-              {checkboxFieldsToChange.map(field => (
-                <div>
-                  <input
-                    type="checkbox"
-                    name={field.name}
-                    id={field.id}
-                    defaultChecked={field.defaultChecked}
-                    onChange={this.handleConfig}
-                  />
-                  <label htmlFor={field.id}>
-                    {field.label}
-                  </label>
-                </div>
-              ))}
-              <div className="combatants">
-                <label htmlFor="maxCombatants">
-                  {/* # Combatants */}
-                  {loc.maxCombatantsTitle}
-                </label>
-                <input
-                  type="text"
-                  id="maxCombatants"
-                  name="maxCombatants"
-                  value={config.maxCombatants}
-                  onChange={this.handleConfig}
-                />
-              </div>
+          <fieldset className="fieldsToShow">
+            <legend>
+              {/* Check to Show */}
+              {loc.toggleTitle}
+            </legend>
+            <input
+              type="checkbox"
+              name="showRank"
+              id="showRank"
+              defaultChecked={config.showRank}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showRank">
+              {/* Rank # */}
+              {loc.toggleOption1}
+            </label>
+            <input
+              type="checkbox"
+              name="showJobIcon"
+              id="showJobIcon"
+              defaultChecked={config.showJobIcon}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showJobIcon">
+              {/* Job Icon */}
+              {loc.toggleOption2}
+            </label>
+            <input
+              type="checkbox"
+              name="showHps"
+              id="showHps"
+              defaultChecked={config.showHps}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showHps">
+              {/* HPS */}
+              {loc.toggleOption3}
+            </label>
+            <input
+              type="checkbox"
+              name="showHighlight"
+              id="showHighlight"
+              defaultChecked={config.showHighlight}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showHighlight">
+              {/* Highlight */}
+              {loc.toggleOption4}
+            </label>
+            <input
+              type="checkbox"
+              name="showSelf"
+              id="showSelf"
+              defaultChecked={config.showSelf}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showSelf">
+              {/* Self */}
+              {loc.toggleOption5}
+            </label>
+            <input
+              type="checkbox"
+              name="showMaxhit"
+              id="showMaxhit"
+              defaultChecked={config.showMaxhit}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showMaxhit">
+              {/* Self */}
+              {loc.toggleOption11}
+            </label>
+            <br />
+            <input
+              type="checkbox"
+              name="showDuration"
+              id="showDuration"
+              defaultChecked={config.showDuration}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showDuration">
+              {/* Duration */}
+              {loc.toggleOption6}
+            </label>
+            <input
+              type="checkbox"
+              name="showTotalDps"
+              id="showTotalDps"
+              defaultChecked={config.showTotalDps}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showTotalDps">
+              {/* Total DPS */}
+              {loc.toggleOption7}
+            </label>
+            <input
+              type="checkbox"
+              name="showDamagePercent"
+              id="showDamagePercent"
+              defaultChecked={config.showDamagePercent}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showDamagePercent">
+              {/* Damage % */}
+              {loc.toggleOption8}
+            </label>
+            <input
+              type="checkbox"
+              name="showJobless"
+              id="showJobless"
+              defaultChecked={config.showJobless}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showJobless">
+              {/* Self */}
+              {loc.toggleOption12}
+            </label>
+            <input
+              type="checkbox"
+              name="showDiscord"
+              id="showDiscord"
+              defaultChecked={config.showDiscord}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showDiscord">
+              {/* Discord */}
+              {loc.toggleOption9}
+            </label>
+            <input
+              type="checkbox"
+              name="showLocale"
+              id="showLocale"
+              defaultChecked={config.showLocale}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="showLocale">
+              {/* Language */}
+              {loc.toggleOption10}
+            </label>
+            <input
+              type="checkbox"
+              name="enableStreamerMode"
+              id="enableStreamerMode"
+              defaultChecked={config.enableStreamerMode}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="enableStreamerMode">
+              {/* Enbale Streamer Mode (blur names) */}
+              {loc.toggleOption13}
+            </label>
+            <input
+              type="checkbox"
+              name="enableSoloMode"
+              id="enableSoloMode"
+              defaultChecked={config.enableSoloMode}
+              onChange={this.handleConfig}
+            />
+            <label htmlFor="enableSoloMode">
+              {/* Enable Solo Mode (Only show own DPS) */}
+              {loc.toggleOption14}
+            </label>
+            <div className="combatants">
+              <label htmlFor="maxCombatants">
+                {/* # Combatants */}
+                {loc.maxCombatantsTitle}
+              </label>
+              <input
+                type="text"
+                id="maxCombatants"
+                name="maxCombatants"
+                value={config.maxCombatants}
+                onChange={this.handleConfig}
+              />
             </div>
           </fieldset>
           <fieldset className="fieldsZoom">

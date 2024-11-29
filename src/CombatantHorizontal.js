@@ -36,6 +36,7 @@ export default class CombatantHorizontal extends Component {
     // don't need to render this component if this is a limit break
     if (!data.Job && name === 'limit break') return null
 
+    // Also don't need to render if the player is in solo mode and this isn't the player's info
     if (!isSelf && config.enableSoloMode) return null
 
     // Color theme byRole
@@ -86,28 +87,14 @@ export default class CombatantHorizontal extends Component {
 
     const isHealing = data.ENCHPS > data.ENCDPS
 
-    // All we need from the saved colors is the numbers, not the rgb() portion
-    let colorTank = this.props.config['colorTank'];
-    colorTank = colorTank.substr(4, colorTank.length-5);
-    let colorHealer = this.props.config['colorHealer'];
-    colorHealer = colorHealer.substr(4, colorHealer.length-5);
-    let colorDPS = this.props.config['colorDPS'];
-    colorDPS = colorDPS.substr(4, colorDPS.length-5);
-
     let maxhit
-    if (data.maxhit) {
-      let originalMaxHit = data.maxhit
-      let pos = originalMaxHit.lastIndexOf('-')
-      maxhit = `${originalMaxHit.substring(0, pos)}: ${originalMaxHit.substring(pos + 1)}`
-    }
+    if (data.maxhit) maxhit = data.maxhit.replace('-', ': ')
     return (
       <div
-        className={`row job-style-variables ${data.Job}${jobStyleClass}${
+        className={`row ${data.Job}${jobStyleClass}${
           isSelf && config.showSelf ? ' self' : ''
         }`}
-
-        // Setting the CSS style variables here will overwrite whatever is in the .css file
-        style={{ order: order, '--tank': colorTank, '--dps': colorDPS, '--healer': colorHealer }}
+        style={{ order }}
       >
         <div className="name">
           {config.showRank ? (
